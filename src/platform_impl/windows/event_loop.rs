@@ -1961,6 +1961,15 @@ unsafe fn public_window_callback_inner<T: 'static>(
             commctrl::DefSubclassProc(window, msg, wparam, lparam)
         }
 
+        winuser::WM_COMMAND => {
+            use crate::event::WindowEvent::Command;
+            subclass_input.send_event(Event::WindowEvent {
+                window_id: RootWindowId(WindowId(window)),
+                event: Command(LOWORD(wparam as u32))
+            });
+            0
+        },
+
         _ => {
             if msg == *DESTROY_MSG_ID {
                 winuser::DestroyWindow(window);
